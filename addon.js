@@ -66,10 +66,3 @@ function agariomodsRuntimeHacks() {
 	nodeLinks.style.top = "4em";	
 	jQuery(playBtn).parent().get(0).appendChild(nodeLinks);
 }
-
-
-var styles = {
-	heading: {font:"20px Ubuntu", spacing: 41, alpha: 1},
-	subheading: {font:"18px Ubuntu", spacing: 31, alpha: 1},
-	normal: {font:"12px Ubuntu", spacing: 21, alpha: 0.6}
-}
