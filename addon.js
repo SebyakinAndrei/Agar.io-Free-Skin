@@ -3,6 +3,10 @@ var gamejs = "", modBlocking = true;
 var tester = document.getElementsByTagName("script");
 var i = 0, main_out_url = "http://agar.io/main_out.js", discovered_mainouturl = 0;
 
+var W = '';
+var b = '';
+var offset;
+
 var ourskin = prompt("Введите ник, на который хотите поставить скин: ", "");
 ourskin = ourskin.toLowerCase();
 var skinurl = prompt("Введите прямую ссылку на скин (например http://i.imgur.com/jjtfCXI.jpg): ", ""); 
@@ -17,13 +21,16 @@ for (i=0; i<tester.length; i++ ){
 
 if(discovered_mainouturl != 0) {
 	httpGet(discovered_mainouturl, function(data) {
-		gamejs = "window.agariomods = " + data.replace("socket open","socket open (agariomods.com mod in place)");
+		gamejs = "window.agariomods = " + data.replace("socket open","socket open");
 		gamejs = gamejs.replace(/\n/g, "");
+		offset = gamejs.search(".....src=\"skins");
+		b = gamejs.substr(offset + 2, 1);
+		offset = gamejs.search(".."+b+"..src");
+		W = gamejs.substr(offset, 1);
 		agariomodsRuntimeInjection();
 	});
 }
 
-// XMLHttp, because apparently raven is doing funky stuff with jQuery
 function httpGet(theUrl, callback) {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.open("GET", theUrl, true);
@@ -45,8 +52,8 @@ function agariomodsRuntimePatches() {
 	//var ourskin = "twilight";
 	//var skinurl = "http://i.imgur.com/jjtfCXI.jpg";
     gamejs = gamejs.replace(';reddit;',';reddit;'+ourskin+';');
-    gamejs = gamejs.replace('d=this.name.toLowerCase();', 'd=this.name.toLowerCase();var agariomods = "";if (d == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + d + ".png";}');
-    gamejs = gamejs.replace('K[d].src="skins/"+d+".png"', 'K[d].src=agariomods');
+    gamejs = gamejs.replace(b+'=this.name.toLowerCase();', b+'=this.name.toLowerCase();var agariomods = "";if ('+b+' == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + '+b+' + ".png";}');
+    gamejs = gamejs.replace(W+'['+b+'].src="skins/"+'+b+'+".png"', W+'['+b+'].src=agariomods');
 	agariomodsRuntimeHacks();
 }
 
@@ -66,5 +73,3 @@ var styles = {
 	subheading: {font:"18px Ubuntu", spacing: 31, alpha: 1},
 	normal: {font:"12px Ubuntu", spacing: 21, alpha: 0.6}
 }
-
-
