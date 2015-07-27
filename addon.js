@@ -1,68 +1,172 @@
-
-var gamejs = "", modBlocking = true;
-var tester = document.getElementsByTagName("script");
-var i = 0, main_out_url = "http://agar.io/main_out.js", discovered_mainouturl = 0;
-
-var W = '';
-var b = '';
-var offset;
+// Original code - agariomods.com
+// Cut and downgrade (edit) - Sebyakin Andrei
+// Contacts: vk.com/supersebyakin
 
 var ourskin = prompt("Введите ник, на который хотите поставить скин: ", "");
 ourskin = ourskin.toLowerCase();
 var skinurl = prompt("Введите прямую ссылку на скин (например http://i.imgur.com/jjtfCXI.jpg): ", ""); 
- 
 
-for (i=0; i<tester.length; i++ ){
-	src = tester[i].src;
-	if (src.substring(0, main_out_url.length ) == main_out_url) {
-		discovered_mainouturl = src.replace("http://agar.io/","");
-	}
-}
+try {
+    (function() {   
+        document.getElementById("overlays").style.display = 'none';
+        document.getElementById("connecting").style.display = 'none';
+        var showsh = false;
+        var showt = localStorage.getItem("showt") == "true";
+        window.extToggled = false;
+        window.server = {
+            ip: "",
+            i: "",
+            location: ""
+        };
+        var gamejs = "",
+            modBlocking = true;
+        var tester = document.getElementsByTagName("script");
+        var i = 0;
+        var W = '';
+        var Ja = '';
+        var b = '';
+        var sk = '';
+        var c3eg2 = '';
+        var in_game = false;
+        var pandb = '';
+    
+        var test = 1;
+        var passed = 0;
+        var failed = 0;
+        var sd = '';
+        var mainout = window.location.protocol + "//agar.io/main_out.js";
+        httpGet(mainout, function(data) {
+            winvar = data.substr(10, 1);
+            gamejs = data.replace("socket open", "socket open (agariomods.com mod in place)");
+            gamejs = gamejs.replace(/\n/g, "");
+            sd = gamejs.substr(gamejs.search(/\w.send/), 1);
+            offset = gamejs.search("..=\"poland;");
+            Ja = gamejs.substr(offset, 2);
+            offset = gamejs.search(".....src=\"skins");
+            b = gamejs.substr(offset + 2, 1);
+            offset = gamejs.search(/\w+\.indexOf\(.\)\?/);
+            sk = gamejs.substr(offset, 2);
+            offset = gamejs.search(".." + b + "..src");
+            W = gamejs.substr(offset, 1);
+            mycells = gamejs.match(/1==(\w+)\.length&&\(/)[1];
+            var components = /this\.(.)&&.\.strokeText/.exec(gamejs);
+            pandb = components[1];
+            var components = /(\w)\.strokeText\((.{1,14})\);/.exec(gamejs);
+            c3eg2 = components[2];
+            bdot = components[1];
+            agariomodsRuntimeInjection();
+        });
 
-if(discovered_mainouturl != 0) {
-	httpGet(discovered_mainouturl, function(data) {
-		gamejs = "window.agariomods = " + data.replace("socket open","socket open");
-		gamejs = gamejs.replace(/\n/g, "");
-		offset = gamejs.search(".....src=\"skins");
-		b = gamejs.substr(offset + 2, 1);
-		offset = gamejs.search(".."+b+"..src");
-		W = gamejs.substr(offset, 1);
-		agariomodsRuntimeInjection();
-	});
-}
+        function httpGet(theUrl, callback) {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", theUrl, true);
+            xmlHttp.send(null);
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                    callback(xmlHttp.responseText);
+                }
+            };
+        }
+        window.connect2 = (window.connect ? window.connect : function() {
+            return
+        });
 
-function httpGet(theUrl, callback) {
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.open("GET", theUrl, true);
-	xmlHttp.send(null);
-	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-			callback(xmlHttp.responseText);
+        function agariomodsRuntimeInjection() {
+            var tester = document.getElementsByTagName("head");
+            var script = document.createElement("script");
+            script.id = "agariomods";
+            agariomodsRuntimePatches();
+            if (document.getElementById("agariomods")) {
+                alert("You are currently running multiple instances of Agariomods simultaneously!\nCheck that you dont have Tampermonkey Script and the Chrome Extension running at the same time if you're on Chrome;\nYou will see visual glicthes until YOU fix this.");
+            }
+            script.innerHTML = gamejs;
+			var oc = document.getElementById("canvas");
+            var nc = document.createElement("canvas");
+            nc.id = "canvas";
+            nc.width = oc.width;
+            nc.height = oc.height;
+            oc.parentNode.replaceChild(nc, oc);
+            document.head.appendChild(script);
+            agariomodsRuntimeHacks();
+        }
+
+        function agariomodsRuntimePatches() {
+            gamejs_patch(/\((\w+\?)/, '(OnDeath(),$1', 'add ondeath hook');
+            gamejs = gamejs.split("#region").join(".region");
+            gamejs_patch(';reddit;', ';reddit;' + ourskin + ';', "add our skin to the original game skinlist.");
+            gamejs_patch(b+'=this.name.toLowerCase();', b+'=this.name.toLowerCase();var agariomods = "";if ('+b+' == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + '+b+' + ".png";}', "our skin goes here");
+            gamejs_patch('=1E4,', '=1E4,' + 'zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
+            gamejs_patch(W + '[' + b + '].src="skins/"+' + b + '+".png"', W + '[' + b + '].src=agariomods', "check for agariomods img src variable");
+			gamejs_patch(".googletag.pubads&&", ".googletag.pubads&&window.googletag.pubads.clear&&", "Fix for users with Ghostery");
+            gamejs = addSkinHook(gamejs);  
+			gamejs = addConnectHook(gamejs);
+            console.log("Testing complete, " + passed + " units passed and " + failed + " units failed.");
+            if (failed) {
+                if (window.debug) console.log(new Error("UNIT FAILED"));
+                else window.onmoderror()
+            };
+        }
+
+        function gamejs_patch(search, replace, purpose) {
+            testCondition(typeof search == "string" ? ~gamejs.indexOf(search) : search.test(gamejs), test++, purpose, search);
+            gamejs = gamejs.replace(search, replace);
+        }
+
+        function testCondition(condition, id, comment, search) {
+            if (condition) {
+                window.debug && console.log("test: #" + id + " PASSED - " + comment);
+                passed++;
+            } else {
+                console.error("test: #" + id + " FAILED - " + comment + "\n Could not find: " + search.toString());
+                failed++;
+            }
+        }
+
+        function agariomodsRuntimeHacks() {
+            
 		}
-	};
-}
-function agariomodsRuntimeInjection() {
-	var script = document.createElement("script");
-	agariomodsRuntimePatches();
-	script.innerHTML = gamejs;
-	document.head.appendChild(script);
-}
+		
+		function addConnectHook(script) {
+            var match = script.match(/console\.log\("Connecting to "\+a\);/);
+            var split = script.split(match[0]);
+            return split[0] + ('try{connect2("...")}catch(a){};') + match[0] + 'if(a.indexOf(window.server.ip)==-1){window.server = {ip:"",i:"",location:""};closeChat();}' + split[1];
+        }
 
-function agariomodsRuntimePatches() {
-	//var ourskin = "twilight";
-	//var skinurl = "http://i.imgur.com/jjtfCXI.jpg";
-    gamejs = gamejs.replace(';reddit;',';reddit;'+ourskin+';');
-    gamejs = gamejs.replace(b+'=this.name.toLowerCase();', b+'=this.name.toLowerCase();var agariomods = "";if ('+b+' == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + '+b+' + ".png";}');
-    gamejs = gamejs.replace(W+'['+b+'].src="skins/"+'+b+'+".png"', W+'['+b+'].src=agariomods');
-	agariomodsRuntimeHacks();
-}
+        function addSkinHook(script) {
+            var match = script.match(/(\w+)=null\)\):\w+=null;/);
+            var split = script.split(match[0]);
+            return split[0] + match[1] + '=null)):' + match[1] + '=null;if(custom&&(' + b + '.substring(0,2).match(/^(i\\/|\\*.)$/))){' + match[1] + '=null;}' + split[1];
+        }
 
+        var styles = {
+            heading: {
+                font: "20px Ubuntu",
+                spacing: 41,
+                alpha: 1
+            },
+            subheading: {
+                font: "18px Ubuntu",
+                spacing: 31,
+                alpha: 1
+            },
+            normal: {
+                font: "12px Ubuntu",
+                spacing: 21,
+                alpha: 0.6
+            }
+        }
 
-function agariomodsRuntimeHacks() {
-	var playBtn = jQuery('#playBtn');
-	var nodeLinks = document.createElement("div");
-	nodeLinks.innerHTML = "<a href='http://vk.com/supersebyakin' target='_blank'>Sebyakin Andrei in VK</a>";
-	nodeLinks.style.position = "absolute";
-	nodeLinks.style.top = "4em";	
-	jQuery(playBtn).parent().get(0).appendChild(nodeLinks);
+        window.OnDeath = function() {
+            showsh = false;
+            in_game = false;
+            $("#helloContainer").show();
+			document.getElementById("overlays").style.display = "block";
+            document.getElementById("overlays").style.pointerEvents = "auto";
+            $("#helloContainer").show();
+            document.getElementById("helloContainer").style.display = "block";
+        }
+    })();
+} catch (e) {
+    $(document).off("onbeforeunload");
+    window.onmoderror()
 }
