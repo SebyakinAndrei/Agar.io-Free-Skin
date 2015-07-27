@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       Free Skin
 // @namespace	 agarmods
-// @version      1.0.1
+// @version      1.0.2
 // @description  Your skin in agar.io!!!
 // @author       Sebyakin Andrei
 // @match        http://agar.io/
