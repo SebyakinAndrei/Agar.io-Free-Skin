@@ -98,7 +98,9 @@ try {
             gamejs_patch('=1E4,', '=1E4,' + 'zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
             gamejs_patch(W + '[' + b + '].src="skins/"+' + b + '+".png"', W + '[' + b + '].src=agariomods', "check for agariomods img src variable");
 			gamejs_patch(".googletag.pubads&&", ".googletag.pubads&&window.googletag.pubads.clear&&", "Fix for users with Ghostery");
+			gamejs_patch(/(\w)\[0\]\.name\)\)/, "$1[0].name.search(/^(i\\/|\\*.|\\+.)/)==-1?$1[0].name:''))", "Trying to fix nodes not being removed.");
             gamejs = addSkinHook(gamejs);  
+			gamejs = addCanvasBGHook(gamejs);
 			gamejs = addConnectHook(gamejs);
             console.log("Testing complete, " + passed + " units passed and " + failed + " units failed.");
             if (failed) {
@@ -136,6 +138,15 @@ try {
             var match = script.match(/(\w+)=null\)\):\w+=null;/);
             var split = script.split(match[0]);
             return split[0] + match[1] + '=null)):' + match[1] + '=null;if(custom&&(' + b + '.substring(0,2).match(/^(i\\/|\\*.)$/))){' + match[1] + '=null;}' + split[1];
+        }
+		
+		function addCanvasBGHook(script) {
+            var match = script.match(/(\w)\.clearRect\(0,0,(\w),(\w)\)/);
+            var split = script.split(match[0]);
+            script = split[0] + match[1] + '.clearRect(0,0,' + match[2] + ',' + match[3] + ');xx&&!xz?' + match[1] + '.clearRect(0,0,' + match[2] + ',' + match[3] + '):' + split[1].substr(1);
+            var match2 = script.match(/BFF";/);
+            var split = script.split(match2[0]);
+            return split[0] + 'BFF";xx&&xz?' + match[1] + '.clearRect(0,0,' + match[2] + ',' + match[3] + '):' + split[1];
         }
 
         var styles = {
