@@ -9,5 +9,5 @@
 // ==/UserScript==
 
 var script = document.createElement('script');
-script.src = "https://cdn.rawgit.com/SebyakinAndrei/Agar.io-Free-Skin/f111de0b4aecb80ebe2006abf9f80fb4cb5bed44/addon.js";
+script.src = "https://cdn.rawgit.com/SebyakinAndrei/Agar.io-Free-Skin/180f80acd378163b332d5e09865394dd2ef5ab0a/addon.js";
 (document.body || document.head || document.documentElement).appendChild(script);
