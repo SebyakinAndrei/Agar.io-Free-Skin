@@ -53,9 +53,7 @@ try {
             pandb = components[1];
             var components = /(\w)\.strokeText\((.{1,14})\);/.exec(gamejs);
             c3eg2 = components[2];
-			console.log('c3eg2 = ' + c3eg2);
             bdot = components[1];
-			console.log('bdot = ' + bdot);
             agariomodsRuntimeInjection();
         });
 
@@ -101,7 +99,7 @@ try {
             gamejs_patch(W + '[' + b + '].src="skins/"+' + b + '+".png"', W + '[' + b + '].src=agariomods', "check for agariomods img src variable");
 			gamejs_patch(".googletag.pubads&&", ".googletag.pubads&&window.googletag.pubads.clear&&", "Fix for users with Ghostery");
 			gamejs_patch(/(\w)\[0\]\.name\)\)/, "$1[0].name.search(/^(i\\/|\\*.|\\+.)/)==-1?$1[0].name:''))", "Trying to fix nodes not being removed.");
-			gamejs_patch("this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")", "if (String(" + c3eg2.substr(0, 1) + ") != "ourskin" || hide_name) {this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")}", "add imgur skins check for hiding username when using imgur id aka c3eg2");
+			gamejs_patch("this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")", "if (String(" + c3eg2.substr(0, 1) + ") != "ourskin" || !show_name) {this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")}", "add imgur skins check for hiding username when using imgur id aka c3eg2");
             gamejs = addSkinHook(gamejs);  
 			gamejs = addCanvasBGHook(gamejs);
 			gamejs = addConnectHook(gamejs);
