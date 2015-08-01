@@ -97,20 +97,33 @@ try {
             gamejs = gamejs.split("#region").join(".region");
             gamejs_patch(';reddit;', ';reddit;' + ourskin + ';', "add our skin to the original game skinlist.");
             gamejs_patch(b+'=this.name.toLowerCase();', b+'=this.name.toLowerCase();var agariomods = "";if ('+b+' == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + '+b+' + ".png";}', "our skin goes here");
-            gamejs_patch('=1E4,', '=1E4,' + 'zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
+            gamejs_patch('=1E4,', '=1E4,' + 'show_name=true,zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
             gamejs_patch(W + '[' + b + '].src="skins/"+' + b + '+".png"', W + '[' + b + '].src=agariomods', "check for agariomods img src variable");
 			gamejs_patch(".googletag.pubads&&", ".googletag.pubads&&window.googletag.pubads.clear&&", "Fix for users with Ghostery");
 			gamejs_patch(/(\w)\[0\]\.name\)\)/, "$1[0].name.search(/^(i\\/|\\*.|\\+.)/)==-1?$1[0].name:''))", "Trying to fix nodes not being removed.");
-			gamejs_patch("this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")", "if (String(" + c3eg2.substr(0, 1) + ").substring(0, 2) != \"i/\" || custom) {this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")}", "add imgur skins check for hiding username when using imgur id aka c3eg2");
+			gamejs_patch("this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")", "if (String(" + c3eg2.substr(0, 1) + ") != "ourskin" || hide_name) {this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")}", "add imgur skins check for hiding username when using imgur id aka c3eg2");
             gamejs = addSkinHook(gamejs);  
 			gamejs = addCanvasBGHook(gamejs);
 			gamejs = addConnectHook(gamejs);
+			gamejs = addFunc(gamejs);
             console.log("Testing complete, " + passed + " units passed and " + failed + " units failed.");
             if (failed) {
                 if (window.debug) console.log(new Error("UNIT FAILED"));
                 else window.onmoderror()
             };
         }
+		
+		function addFunc(script) {
+			var match = script.match(/((\w)\.setAcid)/);
+			match = match[0];
+			var g = '', i = 0;
+			while(i != '.') {
+				g += match[i];
+				i++;
+			}
+			script = script.replace(match, g + ".setShowName = function(){show_name = !show_name};" + match);
+			return script;
+		}
 
         function gamejs_patch(search, replace, purpose) {
             testCondition(typeof search == "string" ? ~gamejs.indexOf(search) : search.test(gamejs), test++, purpose, search);
