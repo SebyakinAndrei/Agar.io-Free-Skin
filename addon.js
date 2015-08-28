@@ -1,5 +1,5 @@
-// Original code - agariomods.com
-// Cut and downgrade (edit) - Sebyakin Andrei
+// Original code - agariomods.com (electronoob)
+// Cut and edit - Sebyakin Andrei
 // Contacts: vk.com/supersebyakin
 
 var ourskin = prompt("Введите ник, на который хотите поставить скин: ", "");
@@ -85,7 +85,9 @@ try {
             nc.id = "canvas";
             nc.width = oc.width;
             nc.height = oc.height;
+			oc.clearRect(0, 0, oc.width, oc.height);
             oc.parentNode.replaceChild(nc, oc);
+			nc.clearRect(0, 0, nc.width, nc.height);
             document.head.appendChild(script);
             agariomodsRuntimeHacks();
         }
