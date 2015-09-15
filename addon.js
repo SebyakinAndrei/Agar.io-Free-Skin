@@ -42,8 +42,9 @@ try {
             sd = gamejs.substr(gamejs.search(/\w.send/), 1);
             offset = gamejs.search("..=\"poland;");
             Ja = gamejs.substr(offset, 2);
-            offset = gamejs.search(".....src=\"skins");
-            b = gamejs.substr(offset + 2, 1);
+            offset = gamejs.search("=this.name.toLowerCase()");
+			b = gamejs.substr(offset - 1, 1);
+			console.log('b = ' + b);
             offset = gamejs.search(/\w+\.indexOf\(.\)\?/);
             sk = gamejs.substr(offset, 2);
             offset = gamejs.search(".." + b + "..src");
