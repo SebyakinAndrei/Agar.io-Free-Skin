@@ -88,6 +88,12 @@ try {
             nc.width = oc.width;
             nc.height = oc.height;
             oc.parentNode.replaceChild(nc, oc);
+			jQuery("#region").removeAttr("id").attr("onchange", "setRegion($('.region').val());").addClass("region").children().each(function() {
+                this.innerHTML = this.innerHTML.replace(/ \(.*$/, "")
+            })
+			$("#canvas").on("mousedown", function(script) {
+                script.preventDefault()
+            })
             document.head.appendChild(script);
             agariomodsRuntimeHacks();
         }
