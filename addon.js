@@ -1,5 +1,5 @@
-// Original code - agariomods.com (electronoob)
-// Cut and edit - Sebyakin Andrei
+// Original code - agariomods.com
+// Cut and downgrade (edit) - Sebyakin Andrei
 // Contacts: vk.com/supersebyakin
 
 var ourskin = prompt("Введите ник, на который хотите поставить скин: ", "");
@@ -42,9 +42,10 @@ try {
             sd = gamejs.substr(gamejs.search(/\w.send/), 1);
             offset = gamejs.search("..=\"poland;");
             Ja = gamejs.substr(offset, 2);
-            offset = gamejs.search("=this.name.toLowerCase()");
-			b = gamejs.substr(offset - 1, 1);
-			alert(b);
+			offset = gamejs.match(/,(\w+)\[(\w+)\]\.src="skins/);
+			b = offset[2];
+           // offset = gamejs.search(".....src=\"skins");
+           // b = gamejs.substr(offset + 2, 1);
             offset = gamejs.search(/\w+\.indexOf\(.\)\?/);
             sk = gamejs.substr(offset, 2);
             offset = gamejs.search(".." + b + "..src");
@@ -86,9 +87,7 @@ try {
             nc.id = "canvas";
             nc.width = oc.width;
             nc.height = oc.height;
-			oc.clearRect(0, 0, oc.width, oc.height);
             oc.parentNode.replaceChild(nc, oc);
-			nc.clearRect(0, 0, nc.width, nc.height);
             document.head.appendChild(script);
             agariomodsRuntimeHacks();
         }
@@ -98,34 +97,19 @@ try {
             gamejs = gamejs.split("#region").join(".region");
             gamejs_patch(';reddit;', ';reddit;' + ourskin + ';', "add our skin to the original game skinlist.");
             gamejs_patch(b+'=this.name.toLowerCase();', b+'=this.name.toLowerCase();var agariomods = "";if ('+b+' == "'+ourskin+'") {agariomods="'+skinurl+'";} else {agariomods="http://agar.io/skins/" + '+b+' + ".png";}', "our skin goes here");
-            gamejs_patch('=1E4,', '=1E4,' + 'show_name=true,zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
+            gamejs_patch('=1E4,', '=1E4,' + 'zz=!1,yq=!1,xx=!1,xz=!1,ts=!1,custom=!1,opv=!1,pcs=!1,pcsrc=""' + ',', "adding variables");
             gamejs_patch(W + '[' + b + '].src="skins/"+' + b + '+".png"', W + '[' + b + '].src=agariomods', "check for agariomods img src variable");
 			gamejs_patch(".googletag.pubads&&", ".googletag.pubads&&window.googletag.pubads.clear&&", "Fix for users with Ghostery");
 			gamejs_patch(/(\w)\[0\]\.name\)\)/, "$1[0].name.search(/^(i\\/|\\*.|\\+.)/)==-1?$1[0].name:''))", "Trying to fix nodes not being removed.");
-			gamejs_patch("this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")", "if (String(" + c3eg2.substr(0, 1) + ") != "ourskin" || !show_name) {this." + pandb + "&&" + bdot + ".strokeText(" + c3eg2 + ");" + bdot + ".fillText(" + c3eg2 + ")}", "add imgur skins check for hiding username when using imgur id aka c3eg2");
             gamejs = addSkinHook(gamejs);  
 			gamejs = addCanvasBGHook(gamejs);
 			gamejs = addConnectHook(gamejs);
-			gamejs = addFunc(gamejs);
             console.log("Testing complete, " + passed + " units passed and " + failed + " units failed.");
             if (failed) {
-                if(window.debug) {
-                	console.log(new Error("UNIT FAILED"));
-                }
+                if (window.debug) console.log(new Error("UNIT FAILED"));
+                else window.onmoderror()
             };
         }
-		
-		function addFunc(script) {
-			var match = script.match(/((\w)\.setAcid)/);
-			match = match[0];
-			var g = '', i = 0;
-			while(i != '.') {
-				g += match[i];
-				i++;
-			}
-			script = script.replace(match, g + ".setShowName = function(){show_name = !show_name};" + match);
-			return script;
-		}
 
         function gamejs_patch(search, replace, purpose) {
             testCondition(typeof search == "string" ? ~gamejs.indexOf(search) : search.test(gamejs), test++, purpose, search);
@@ -189,7 +173,7 @@ try {
             showsh = false;
             in_game = false;
             $("#helloContainer").show();
-	    document.getElementById("overlays").style.display = "block";
+			document.getElementById("overlays").style.display = "block";
             document.getElementById("overlays").style.pointerEvents = "auto";
             $("#helloContainer").show();
             document.getElementById("helloContainer").style.display = "block";
