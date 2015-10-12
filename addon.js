@@ -137,7 +137,7 @@ try {
         }
 
         function addSkinHook(script) {
-            var match = script.match(/(\w+)=null\)\):\w+=null;/);
+            var match = script.match(/(\w+)=null\):\w+=null;/);
             var split = script.split(match[0]);
             return split[0] + match[1] + '=null)):' + match[1] + '=null;if(custom&&(' + b + '.substring(0,2).match(/^(i\\/|\\*.)$/))){' + match[1] + '=null;}' + split[1];
         }
